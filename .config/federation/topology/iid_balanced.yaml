@@ -1,0 +1,4 @@
+topology:
+  type: "iid"
+  num_clients: 10
+  client_fraction: 1.0

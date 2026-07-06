@@ -1,0 +1,5 @@
+model:
+  type: "mlp"
+  input_size: 8
+  hidden_size: 64
+  num_classes: 3

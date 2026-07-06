@@ -1,0 +1,22 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: hivetorch-rules
+spec:
+  groups:
+  - name: federated_learning
+    rules:
+    - alert: HighClientDropout
+      expr: rate(client_disconnects_total[5m]) > 0.1
+      for: 2m
+      labels:
+        severity: warning
+      annotations:
+        summary: "High rate of client dropouts detected"
+    - alert: ConceptDriftDetected
+      expr: drift_detector_flag > 0
+      for: 1m
+      labels:
+        severity: critical
+      annotations:
+        summary: "Statistical drift detected in global model updates"

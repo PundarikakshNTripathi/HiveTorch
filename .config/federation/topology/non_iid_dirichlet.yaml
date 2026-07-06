@@ -1,0 +1,5 @@
+topology:
+  type: "non_iid"
+  num_clients: 10
+  client_fraction: 0.8
+  shards_per_client: 2

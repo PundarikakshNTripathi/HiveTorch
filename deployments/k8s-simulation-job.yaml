@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hivetorch-server
+spec:
+  template:
+    spec:
+      containers:
+      - name: server
+        image: hivetorch:latest
+        imagePullPolicy: Never
+        command: ["python", "scripts/orchestrate_simulation.py"]
+        ports:
+        - containerPort: 50051
+      restartPolicy: Never
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: hivetorch-clients
+spec:
+  parallelism: 5
+  template:
+    spec:
+      containers:
+      - name: client
+        image: hivetorch:latest
+        imagePullPolicy: Never
+        command: ["python", "src/fedavg_core/client/edge_trainer.py"]
+        env:
+        - name: SERVER_HOST
+          value: "hivetorch-server"
+      restartPolicy: OnFailure
