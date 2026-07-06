@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package federated;
+
+service FederatedLearning {
+    rpc Join (JoinRequest) returns (JoinResponse);
+    rpc SendUpdate (ClientUpdate) returns (ServerAck);
+    rpc GetModel (ModelRequest) returns (ModelResponse);
+}
+
+message JoinRequest {
+    string client_id = 1;
+}
+
+message JoinResponse {
+    bool accepted = 1;
+    string session_id = 2;
+}
+
+message ClientUpdate {
+    string client_id = 1;
+    string session_id = 2;
+    bytes weights = 3; // Serialized via safetensors
+    int32 num_samples = 4;
+    float loss = 5;
+}
+
+message ServerAck {
+    bool success = 1;
+}
+
+message ModelRequest {
+    string client_id = 1;
+}
+
+message ModelResponse {
+    int32 current_round = 1;
+    bytes global_weights = 2; // Serialized via safetensors
+}

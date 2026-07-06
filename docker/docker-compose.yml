@@ -1,0 +1,42 @@
+version: '3.8'
+
+services:
+  server:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "main.py", "--role=server"]
+    ports:
+      - "50051:50051"
+    environment:
+      - ROLE=server
+    volumes:
+      - ./.config:/app/.config
+
+  client-1:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "main.py", "--role=client", "--client_id=1"]
+    depends_on:
+      - server
+    environment:
+      - ROLE=client
+      - SERVER_HOST=server
+      - SERVER_PORT=50051
+    volumes:
+      - ./.config:/app/.config
+
+  client-2:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    command: ["python", "main.py", "--role=client", "--client_id=2"]
+    depends_on:
+      - server
+    environment:
+      - ROLE=client
+      - SERVER_HOST=server
+      - SERVER_PORT=50051
+    volumes:
+      - ./.config:/app/.config
