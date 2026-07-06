@@ -1,7 +1,6 @@
 import sys
 import os
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-import torch
 from src.fedavg_core.utils.configuration_factory import load_config
 from src.fedavg_core.data.dataset_downloader import build_synthetic_dataset
 from src.fedavg_core.data.processing_pipeline import train_test_split_dataset

@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 def clone_model_state(model: nn.Module) -> dict:

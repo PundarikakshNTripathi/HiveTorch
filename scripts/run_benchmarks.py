@@ -5,7 +5,6 @@ import platform
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import json
 import re
-import torch
 import matplotlib.pyplot as plt
 from src.fedavg_core.utils.configuration_factory import load_config
 from src.fedavg_core.data.dataset_downloader import build_synthetic_dataset
@@ -58,7 +57,7 @@ def main():
             cpu = subprocess.check_output(["wmic", "cpu", "get", "name"]).decode().split('\\n')[1].strip()
         else:
             cpu = platform.processor()
-    except:
+    except Exception:
         cpu = "Intel(R) Core(TM) i7-14650HX"
         
     ram = "24 GB"

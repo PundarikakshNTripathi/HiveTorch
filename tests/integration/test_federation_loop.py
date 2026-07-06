@@ -1,4 +1,3 @@
-import torch
 from src.fedavg_core.server.coordinator import initialize_global_state
 
 def test_global_state_initialization():

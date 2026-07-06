@@ -1,4 +1,3 @@
-import torch
 
 def add_state_dicts(state_a: dict, state_b: dict) -> dict:
     """

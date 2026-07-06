@@ -1,4 +1,3 @@
-import torch
 import torch.nn as nn
 
 def load_model_state(model: nn.Module, state_dict: dict) -> nn.Module:

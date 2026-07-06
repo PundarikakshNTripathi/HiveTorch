@@ -1,5 +1,8 @@
 import torch
 import torch.nn as nn
+from src.fedavg_core.models.architectures import build_mlp_classifier
+from src.fedavg_core.data.processing_pipeline import iterate_client_batches
+from src.fedavg_core.optimization.weight_alignment import local_sgd_step
 
 def evaluate_accuracy(model: nn.Module, test_features: torch.Tensor, test_labels: torch.Tensor) -> float:
     """
@@ -38,9 +41,7 @@ def evaluate_accuracy(model: nn.Module, test_features: torch.Tensor, test_labels
     # 6. Extract the primitive Python float
     return accuracy_tensor.item()
 
-from src.fedavg_core.models.architectures import build_mlp_classifier
-from src.fedavg_core.data.processing_pipeline import iterate_client_batches
-from src.fedavg_core.optimization.weight_alignment import local_sgd_step
+
 
 def train_centralized_baseline(
     train_features: torch.Tensor, 
