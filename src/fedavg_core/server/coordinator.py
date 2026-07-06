@@ -7,6 +7,7 @@ from src.fedavg_core.versioning.model_registry import load_model_state
 from src.fedavg_core.client.edge_trainer import train_client_local
 from src.fedavg_core.server.secure_aggregator import aggregate_weighted_average
 from src.fedavg_core.evaluation.global_evaluator import evaluate_accuracy
+from src.fedavg_core.monitoring.drift_detector import ConceptDriftDetector
 
 def initialize_global_state(input_size: int, hidden_size: int, num_classes: int, seed: int) -> dict:
     """
@@ -199,6 +200,13 @@ def run_fedavg(
         
         acc = evaluate_accuracy(eval_model, test_features, test_labels)
         round_accuracies.append(acc)
+        
+        # Monitor for Concept Drift against the best accuracy so far
+        if len(round_accuracies) > 1:
+            best_acc = max(round_accuracies[:-1])
+            detector = ConceptDriftDetector(threshold=0.10)
+            if detector.check_accuracy_drift(best_acc, acc):
+                print(f"WARNING: Concept Drift Detected at Round {round_idx}! Accuracy dropped from {best_acc:.4f} to {acc:.4f}")
         
     # 3. Finalize and package the results
     final_model = build_mlp_classifier(**model_config)
