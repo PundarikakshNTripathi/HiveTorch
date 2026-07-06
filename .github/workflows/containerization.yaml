@@ -1,0 +1,14 @@
+name: Containerization
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    - name: Build Docker image
+      run: docker build -t hivetorch:latest -f docker/Dockerfile .
+    # Add push steps for your container registry here

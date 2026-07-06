@@ -1,0 +1,13 @@
+federated:
+  num_rounds: 10
+  num_clients: 5
+  client_fraction: 0.8
+model:
+  input_size: 8
+  hidden_size: 16
+  num_classes: 3
+training:
+  local_epochs: 2
+  batch_size: 16
+  learning_rate: 0.05
+  seed: 42
