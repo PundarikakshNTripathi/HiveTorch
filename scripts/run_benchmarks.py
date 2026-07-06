@@ -70,15 +70,21 @@ def main():
         
     results_md = f"""<!-- RESULTS_START -->
 ### Latest Benchmark Run
-- **Final Test Accuracy:** {metrics['final_accuracy']:.4f}
-- **Peak Test Accuracy:** {metrics['max_accuracy']:.4f}
-- **Total Rounds Simulated:** {metrics['rounds']}
-- **Total Clients Simulated:** {metrics['clients']}
+
+| Metric | Value |
+|--------|-------|
+| **Final Test Accuracy** | {metrics['final_accuracy']:.4f} |
+| **Peak Test Accuracy** | {metrics['max_accuracy']:.4f} |
+| **Total Rounds Simulated** | {metrics['rounds']} |
+| **Total Clients Simulated** | {metrics['clients']} |
 
 #### Hardware Specifications (Local Execution)
-- **CPU:** {cpu}
-- **RAM:** {ram}
-- **OS:** {platform.system()} {platform.release()}
+
+| Component | Specification |
+|-----------|---------------|
+| **CPU** | {cpu} |
+| **RAM** | {ram} |
+| **OS** | {platform.system()} {platform.release()} |
 
 #### Convergence Plot
 ![Convergence](scripts/images/convergence.png)
