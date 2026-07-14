@@ -7,11 +7,11 @@ from src.fedavg_core.data.processing_pipeline import train_test_split_dataset
 from scripts.orchestrate_simulation import run_fedavg_iid
 
 def main():
-    # 1. Load config dynamically using the factory we built
+    # Load config dynamically using the factory we built
     cfg = load_config()
     print("Loaded Configuration:", cfg)
     
-    # 2. Prepare Data
+    # Prepare Data
     print("Generating Synthetic Data...")
     features, labels = build_synthetic_dataset(
         num_samples=1000, 
@@ -24,7 +24,7 @@ def main():
         features, labels, test_fraction=0.2, seed=cfg.training.seed
     )
     
-    # 3. Run Pipeline
+    # Run Pipeline
     print(f"Starting Federated Pipeline with {cfg.federated.num_clients} clients...")
     accuracies = run_fedavg_iid(
         train_features=train_feat,

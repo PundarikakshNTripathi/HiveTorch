@@ -14,21 +14,21 @@ def partition_data_iid(train_features: torch.Tensor, train_labels: torch.Tensor,
         A list of length `num_clients`, where each element is a tuple of 
         (client_features, client_labels).
     """
-    # 1. Lock the random state for deterministic shuffling
+    # Lock the random state for deterministic shuffling
     gen = torch.Generator().manual_seed(seed)
     num_samples = train_features.shape[0]
     
-    # 2. Generate a single random permutation of indices from 0 to M-1
+    # Generate a single random permutation of indices from 0 to M-1
     shuffled_indices = torch.randperm(num_samples, generator=gen)
     
-    # 3. Calculate base chunk size and the remainder of rows
+    # Calculate base chunk size and the remainder of rows
     base_size = num_samples // num_clients
     remainder = num_samples % num_clients
     
     partitions = []
     current_idx = 0
     
-    # 4. Distribute the indices and slice the data
+    # Distribute the indices and slice the data
     for i in range(num_clients):
         # Distribute the remainder by giving the first 'remainder' clients one extra row
         client_size = base_size + (1 if i < remainder else 0)
@@ -65,16 +65,16 @@ def partition_data_non_iid(train_features: torch.Tensor, train_labels: torch.Ten
     gen = torch.Generator().manual_seed(seed)
     num_samples = train_features.shape[0]
     
-    # 1. Sort the dataset by label to cluster the classes together.
+    # Sort the dataset by label to cluster the classes together.
     # We only sort the indices to avoid moving heavy feature data in memory.
     sorted_indices = torch.argsort(train_labels)
     
-    # 2. Determine the size and count of the shards.
+    # Determine the size and count of the shards.
     total_shards = num_clients * shards_per_client
     base_shard_size = num_samples // total_shards
     remainder = num_samples % total_shards
     
-    # 3. Cut the sorted indices into discrete shards.
+    # Cut the sorted indices into discrete shards.
     shards = []
     current_idx = 0
     for i in range(total_shards):
@@ -83,12 +83,12 @@ def partition_data_non_iid(train_features: torch.Tensor, train_labels: torch.Ten
         shards.append(sorted_indices[current_idx : current_idx + size])
         current_idx += size
         
-    # 4. Shuffle the order of the shards (crucial: we do NOT shuffle the data inside them)
+    # Shuffle the order of the shards (crucial: we do NOT shuffle the data inside them)
     shard_order = torch.randperm(total_shards, generator=gen).tolist()
     
     partitions = []
     
-    # 5. Distribute the shards to the clients
+    # Distribute the shards to the clients
     for i in range(num_clients):
         client_indices = []
         

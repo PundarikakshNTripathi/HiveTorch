@@ -11,10 +11,10 @@ def clone_model_state(model: nn.Module) -> dict:
     Returns:
         A new dictionary mapping parameter/buffer names to fresh, detached tensors.
     """
-    # 1. Grab the dictionary of memory references
+    # Grab the dictionary of memory references
     live_state = model.state_dict()
     
-    # 2. Build a completely independent snapshot
+    # Build a completely independent snapshot
     snapshot = {}
     for name, tensor in live_state.items():
         # Detach removes it from the graph; clone allocates new memory

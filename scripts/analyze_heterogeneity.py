@@ -64,7 +64,7 @@ def rounds_to_target_vs_local_epochs(
     results = {}
     
     for E in local_epochs_list:
-        # 1. Execute the full federated simulation for this specific E
+        # Execute the full federated simulation for this specific E
         _, round_accuracies = run_fedavg(
             client_partitions=client_partitions,
             test_features=test_features,
@@ -78,14 +78,14 @@ def rounds_to_target_vs_local_epochs(
             seed=seed
         )
         
-        # 2. Scan the telemetry trace to find the threshold crossing
+        # Scan the telemetry trace to find the threshold crossing
         target_index = None
         for idx, acc in enumerate(round_accuracies):
             if acc >= target_accuracy:
                 target_index = idx
                 break  # Exit the scan immediately upon finding the first success
                 
-        # 3. Record the index (or None) to the results dictionary
+        # Record the index (or None) to the results dictionary
         results[E] = target_index
         
     return results
@@ -125,7 +125,7 @@ def accuracy_vs_client_fraction(
     
     for client_fraction in client_fraction_list:
         
-        # 1. Execute the full federated simulation for this specific fraction.
+        # Execute the full federated simulation for this specific fraction.
         # CRITICAL: We pass the exact same base 'seed' to every run.
         _, round_accuracies = run_fedavg(
             client_partitions=client_partitions,
@@ -140,10 +140,10 @@ def accuracy_vs_client_fraction(
             seed=seed
         )
         
-        # 2. Extract the terminal accuracy of the converged model
+        # Extract the terminal accuracy of the converged model
         final_accuracy = float(round_accuracies[-1])
         
-        # 3. Map the fraction to its performance outcome
+        # Map the fraction to its performance outcome
         results[client_fraction] = final_accuracy
         
     return results

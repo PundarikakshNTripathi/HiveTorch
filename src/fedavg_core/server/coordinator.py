@@ -23,10 +23,10 @@ def initialize_global_state(input_size: int, hidden_size: int, num_classes: int,
         An OrderedDict containing freshly initialized, completely detached 
         model parameters ready for network transmission.
     """
-    # 1. Lock the global PRNG state BEFORE instantiation
+    # Lock the global PRNG state BEFORE instantiation
     torch.manual_seed(seed)
     
-    # 2. Build the temporary scaffolding model. 
+    # Build the temporary scaffolding model. 
     # Because the seed is locked, its initial weights are strictly deterministic.
     temp_model = build_mlp_classifier(
         input_size=input_size, 
@@ -34,7 +34,7 @@ def initialize_global_state(input_size: int, hidden_size: int, num_classes: int,
         num_classes=num_classes
     )
     
-    # 3. Extract a safe, immutable copy of the state
+    # Extract a safe, immutable copy of the state
     global_state = clone_model_state(temp_model)
     
     # temp_model is now garbage collected, leaving only the raw data payload.
@@ -52,16 +52,16 @@ def select_round_clients(num_clients: int, client_fraction: float, seed: int) ->
     Returns:
         A sorted list of distinct integer indices representing the chosen clients.
     """
-    # 1. Calculate the target number of clients, guaranteeing at least 1
+    # Calculate the target number of clients, guaranteeing at least 1
     target_count = max(1, round(client_fraction * num_clients))
     
-    # 2. Lock the NumPy pseudo-random number generator state
+    # Lock the NumPy pseudo-random number generator state
     rng = np.random.default_rng(seed)
     
-    # 3. Draw distinct indices without replacement
+    # Draw distinct indices without replacement
     selected_indices = rng.choice(num_clients, size=target_count, replace=False)
     
-    # 4. Convert to a Python list and sort to guarantee deterministic downstream aggregation
+    # Convert to a Python list and sort to guarantee deterministic downstream aggregation
     return sorted(selected_indices.tolist())
 
 def run_communication_round(
@@ -93,7 +93,7 @@ def run_communication_round(
     client_states = []
     client_sample_counts = []
     
-    # 1. Dispatch the workload to the selected worker nodes
+    # Dispatch the workload to the selected worker nodes
     for client_idx in selected_clients:
         
         # Isolate Memory: Build a fresh, sterile model to simulate a physically separate client
@@ -108,7 +108,7 @@ def run_communication_round(
         # Create a unique but perfectly reproducible random state for this client's batching
         client_seed = seed + client_idx
         
-        # 2. Execute Local Training
+        # Execute Local Training
         trained_state = train_client_local(
             model=client_model,
             client_features=client_features,
@@ -119,14 +119,14 @@ def run_communication_round(
             seed=client_seed
         )
         
-        # 3. Collect Payloads
+        # Collect Payloads
         client_states.append(trained_state)
         
         # Track the number of local samples (N_k) for the downstream weighted average
         num_samples = client_features.shape[0]
         client_sample_counts.append(num_samples)
         
-    # 4. Server-Side Aggregation
+    # Server-Side Aggregation
     # Fuse the collected states based on their data volume
     new_global_state = aggregate_weighted_average(client_states, client_sample_counts)
     
@@ -162,7 +162,7 @@ def run_fedavg(
     Returns:
         A tuple of (final_global_model, list_of_round_accuracies).
     """
-    # 1. Initialize the pristine starting weights
+    # Initialize the pristine starting weights
     global_state = initialize_global_state(
         input_size=model_config['input_size'],
         hidden_size=model_config['hidden_size'],
@@ -173,7 +173,7 @@ def run_fedavg(
     round_accuracies = []
     num_clients = len(client_partitions)
     
-    # 2. Execute the communication loop
+    # Execute the communication loop
     for round_idx in range(num_rounds):
         
         # Advance the seed to guarantee fresh entropy per round
@@ -208,7 +208,7 @@ def run_fedavg(
             if detector.check_accuracy_drift(best_acc, acc):
                 print(f"WARNING: Concept Drift Detected at Round {round_idx}! Accuracy dropped from {best_acc:.4f} to {acc:.4f}")
         
-    # 3. Finalize and package the results
+    # Finalize and package the results
     final_model = build_mlp_classifier(**model_config)
     load_model_state(final_model, global_state)
     

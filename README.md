@@ -242,7 +242,7 @@ make deploy
 
 ## Current Status
 HiveTorch is currently in a functional, from-scratch implementation phase for localized simulations. 
-- **Achieved**: We have successfully ported a comprehensive 26-step federated learning tutorial into a heavily decoupled, modular software architecture.
+- **Achieved**: Engineered a robust, heavily decoupled, and modular software architecture capable of scaling decentralized federated optimization.
 - **Achieved**: The mathematical convergence of the `FedAvg` algorithm has been verified under both IID (Independent and Identically Distributed) and strictly skewed Non-IID Dirichlet topologies.
 - **Achieved**: The core infrastructure (Docker, Minikube, W&B, Prometheus) is established and automated via a unified Makefile.
 

@@ -37,7 +37,7 @@ def run_fedavg_iid(
     Returns:
         A list of floats representing the global model's test accuracy after each round.
     """
-    # 1. Prepare the ideal baseline data distribution
+    # Prepare the ideal baseline data distribution
     iid_partitions = partition_data_iid(
         train_features=train_features, 
         train_labels=train_labels, 
@@ -45,7 +45,7 @@ def run_fedavg_iid(
         seed=seed
     )
     
-    # 2. Drive the federated loop, capturing both the final model and the telemetry
+    # Drive the federated loop, capturing both the final model and the telemetry
     final_model, round_accuracies = run_fedavg(
         client_partitions=iid_partitions,
         test_features=test_features,
@@ -59,7 +59,7 @@ def run_fedavg_iid(
         seed=seed
     )
     
-    # 3. Discard the model object to free VRAM and return only the learning curve
+    # Discard the model object to free VRAM and return only the learning curve
     return round_accuracies
 
 
@@ -99,7 +99,7 @@ def run_fedavg_non_iid(
     Returns:
         A tuple of (final_global_model, list_of_round_accuracies).
     """
-    # 1. Prepare the skewed, real-world data distribution
+    # Prepare the skewed, real-world data distribution
     non_iid_partitions = partition_data_non_iid(
         train_features=train_features, 
         train_labels=train_labels, 
@@ -108,7 +108,7 @@ def run_fedavg_non_iid(
         seed=seed
     )
     
-    # 2. Drive the federated loop using the skewed data shards
+    # Drive the federated loop using the skewed data shards
     final_model, round_accuracies = run_fedavg(
         client_partitions=non_iid_partitions,
         test_features=test_features,
@@ -122,5 +122,5 @@ def run_fedavg_non_iid(
         seed=seed
     )
     
-    # 3. Return both the forensic model artifact and the telemetry trace
+    # Return both the forensic model artifact and the telemetry trace
     return final_model, round_accuracies

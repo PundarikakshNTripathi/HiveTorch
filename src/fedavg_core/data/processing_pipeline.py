@@ -14,23 +14,23 @@ def train_test_split_dataset(features: torch.Tensor, labels: torch.Tensor, test_
         A tuple containing four tensors:
         (train_features, train_labels, test_features, test_labels)
     """
-    # 1. Lock the random state
+    # Lock the random state
     gen = torch.Generator().manual_seed(seed)
     
-    # 2. Determine exact boundaries
+    # Determine exact boundaries
     num_samples = features.shape[0]
     num_test = int(num_samples * test_fraction)
     
-    # 3. Generate a single deterministic permutation of indices from 0 to N-1
+    # Generate a single deterministic permutation of indices from 0 to N-1
     # Shape: (num_samples,)
     shuffled_indices = torch.randperm(num_samples, generator=gen)
     
-    # 4. Slice the indices into test and train sets. 
+    # Slice the indices into test and train sets. 
     # The prompt requests the *first* int(N * test_fraction) for the test set.
     test_indices = shuffled_indices[:num_test]
     train_indices = shuffled_indices[num_test:]
     
-    # 5. Apply the shared indices to both tensors to maintain paired supervision
+    # Apply the shared indices to both tensors to maintain paired supervision
     test_features = features[test_indices]
     test_labels = labels[test_indices]
     
@@ -75,16 +75,16 @@ def iterate_client_batches(client_features: torch.Tensor, client_labels: torch.T
     gen = torch.Generator().manual_seed(seed)
     num_samples = client_features.shape[0]
     
-    # 1. Generate a single permutation of indices to maintain feature-label pairing
+    # Generate a single permutation of indices to maintain feature-label pairing
     shuffled_indices = torch.randperm(num_samples, generator=gen)
     
-    # 2. Shuffle the entire client dataset once using the indices
+    # Shuffle the entire client dataset once using the indices
     shuffled_features = client_features[shuffled_indices]
     shuffled_labels = client_labels[shuffled_indices]
     
     batches = []
     
-    # 3. Step through the dataset in increments of batch_size
+    # Step through the dataset in increments of batch_size
     for start_idx in range(0, num_samples, batch_size):
         
         # Slicing in PyTorch automatically handles out-of-bounds ends, 

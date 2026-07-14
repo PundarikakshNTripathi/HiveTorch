@@ -15,10 +15,10 @@ def build_synthetic_dataset(num_samples: int, input_size: int, num_classes: int,
             features: Float tensor of shape (num_samples, input_size)
             labels: Int64 tensor of shape (num_samples,)
     """
-    # 1. Isolate the random state so it doesn't affect global randomness
+    # Isolate the random state so it doesn't affect global randomness
     gen = torch.Generator().manual_seed(seed)
     
-    # 2. Generate labels: random integers from 0 up to (but not including) num_classes.
+    # Generate labels: random integers from 0 up to (but not including) num_classes.
     # We strictly enforce dtype=torch.int64 because loss functions require it for indexing.
     labels = torch.randint(
         low=0, 
@@ -28,20 +28,20 @@ def build_synthetic_dataset(num_samples: int, input_size: int, num_classes: int,
         dtype=torch.int64
     )
     
-    # 3. Generate class centers (centroids) in the high-dimensional feature space.
+    # Generate class centers (centroids) in the high-dimensional feature space.
     # Shape: (num_classes, input_size)
     centers = torch.randn(num_classes, input_size, generator=gen)
     
-    # 4. Map each sample to its corresponding class center using advanced indexing.
+    # Map each sample to its corresponding class center using advanced indexing.
     # If labels is [0, 2, 1], sample_centers grabs the 0th, 2nd, and 1st row of centers.
     # Shape: (num_samples, input_size)
     sample_centers = centers[labels]
     
-    # 5. Generate random noise to scatter the points around their centers.
+    # Generate random noise to scatter the points around their centers.
     # Shape: (num_samples, input_size)
     noise = torch.randn(num_samples, input_size, generator=gen)
     
-    # 6. Combine the centers and the noise to create the final float32 features.
+    # Combine the centers and the noise to create the final float32 features.
     features = sample_centers + noise
     
     return features, labels

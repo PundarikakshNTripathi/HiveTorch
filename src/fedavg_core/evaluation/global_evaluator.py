@@ -17,28 +17,28 @@ def evaluate_accuracy(model: nn.Module, test_features: torch.Tensor, test_labels
         A scalar float between 0.0 and 1.0 representing the fraction of 
         correct predictions.
     """
-    # 1. Toggle the model to evaluation mode (disables Dropout/BatchNorm side-effects)
+    # Toggle the model to evaluation mode (disables Dropout/BatchNorm side-effects)
     model.eval()
     
-    # 2. Disable the autograd engine to save VRAM and execution time
+    # Disable the autograd engine to save VRAM and execution time
     with torch.no_grad():
         
-        # 3. Forward pass to get raw unnormalized logits
+        # Forward pass to get raw unnormalized logits
         # Shape: (T, num_classes)
         logits = model(test_features)
         
-        # 4. Extract the predicted class by finding the index of the highest logit
+        # Extract the predicted class by finding the index of the highest logit
         # We reduce along dimension 1 (the class axis)
         # Shape: (T,)
         predictions = torch.argmax(logits, dim=1)
         
-        # 5. Calculate the fraction of correct predictions via vectorized math
+        # Calculate the fraction of correct predictions via vectorized math
         # (predictions == test_labels) creates a boolean tensor [True, False, True...]
         # .float() converts it to [1.0, 0.0, 1.0...]
         # .mean() calculates the exact ratio of 1s (the accuracy)
         accuracy_tensor = (predictions == test_labels).float().mean()
         
-    # 6. Extract the primitive Python float
+    # Extract the primitive Python float
     return accuracy_tensor.item()
 
 
@@ -72,15 +72,15 @@ def train_centralized_baseline(
     Returns:
         The model's classification accuracy on the test set as a float [0, 1].
     """
-    # 1. Lock the seed to guarantee the monolithic model starts with the 
+    # Lock the seed to guarantee the monolithic model starts with the 
     # exact same random weights as the federated global model.
     torch.manual_seed(seed)
     
-    # 2. Instantiate the monolithic model and its optimizer
+    # Instantiate the monolithic model and its optimizer
     model = build_mlp_classifier(**model_config)
     optimizer = torch.optim.SGD(model.parameters(), lr=learning_rate)
     
-    # 3. Standard training loop over the pooled data
+    # Standard training loop over the pooled data
     model.train()
     for epoch in range(num_epochs):
         
@@ -94,7 +94,7 @@ def train_centralized_baseline(
         for batch_features, batch_labels in batches:
             local_sgd_step(model, optimizer, batch_features, batch_labels)
             
-    # 4. Evaluate and return the final theoretical upper bound
+    # Evaluate and return the final theoretical upper bound
     accuracy = evaluate_accuracy(model, test_features, test_labels)
     
     return accuracy

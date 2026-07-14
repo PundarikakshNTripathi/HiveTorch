@@ -14,11 +14,11 @@ from scripts.orchestrate_simulation import run_fedavg_iid
 def main():
     cfg = load_config()
     
-    # 1. Setup Directories
+    # Setup Directories
     os.makedirs("scripts/images", exist_ok=True)
     os.makedirs("scripts/metrics", exist_ok=True)
     
-    # 2. Run simulation
+    # Run simulation
     features, labels = build_synthetic_dataset(1000, cfg.model.input_size, cfg.model.num_classes, cfg.training.seed)
     train_feat, train_lab, test_feat, test_lab = train_test_split_dataset(features, labels, 0.2, cfg.training.seed)
     
@@ -30,7 +30,7 @@ def main():
         cfg.training.batch_size, cfg.training.learning_rate, cfg.training.seed
     )
     
-    # 3. Generate Plot
+    # Generate Plot
     plt.figure(figsize=(10, 6), dpi=300)
     plt.plot(range(1, len(accuracies) + 1), accuracies, marker='o', linestyle='-', color='#0078D7', linewidth=2)
     plt.title('Federated Averaging Convergence Curve', fontsize=14, fontweight='bold')
@@ -41,7 +41,7 @@ def main():
     plt.savefig('scripts/images/convergence.png')
     plt.close()
     
-    # 4. Generate JSON
+    # Generate JSON
     metrics = {
         "final_accuracy": float(accuracies[-1]),
         "max_accuracy": float(max(accuracies)),
@@ -62,7 +62,7 @@ def main():
         
     ram = "24 GB"
         
-    # 5. Update README dynamically
+    # Update README dynamically
     readme_path = 'README.md'
     with open(readme_path, 'r', encoding='utf-8') as f:
         content = f.read()
