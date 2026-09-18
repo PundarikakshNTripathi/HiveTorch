@@ -1,0 +1,59 @@
+direction: right
+
+style.fill: "#fffdd0"
+style.stroke: transparent
+
+classes: {
+  container: {
+    style: {
+      fill: "#f8f9fa"
+      stroke-dash: 5
+      border-radius: 10
+      shadow: true
+    }
+  }
+  pod: { shape: rectangle; style.fill: "#f76c6c"; style.border-radius: 15 }
+  client: { shape: rectangle; style.fill: "#f8e9a1"; style.border-radius: 5 }
+  monitor: { shape: cylinder; style.fill: "#a8d0e6" }
+  cloud: { shape: cloud; style.fill: "#b5e7a0" }
+}
+
+"Kubernetes Cluster (Minikube)": {
+  class: container
+  direction: down
+
+  "HiveTorch Coordinator (Pod)": { class: pod }
+
+  "Edge Worker Nodes": {
+    class: container
+    direction: right
+    "Client 1": { class: client }
+    "Client 2": { class: client }
+    "Client K": { class: client }
+  }
+}
+
+"Monitoring Stack": {
+  class: container
+  direction: down
+  
+  "Prometheus Metrics": { class: monitor }
+  "Weights & Biases (Cloud)": { class: cloud }
+}
+
+"Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)" -> "Kubernetes Cluster (Minikube)"."Edge Worker Nodes": "1. Broadcast Global Weights" {
+  style.animated: true
+}
+"Kubernetes Cluster (Minikube)"."Edge Worker Nodes"."Client 1" -> "Kubernetes Cluster (Minikube)"."Edge Worker Nodes"."Client 1": "2. Local SGD Training"
+"Kubernetes Cluster (Minikube)"."Edge Worker Nodes" -> "Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)": "3. Transmit Gradients (gRPC)" {
+  style.animated: true
+}
+"Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)" -> "Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)": "4. Secure Weighted Averaging"
+
+"Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)" -> "Monitoring Stack"."Prometheus Metrics": "Scrape Dropout Rates" {
+  style.stroke-dash: 5
+}
+"Kubernetes Cluster (Minikube)"."HiveTorch Coordinator (Pod)" -> "Monitoring Stack"."Weights & Biases (Cloud)": "Log Accuracies" {
+  style.stroke-dash: 5
+  style.animated: true
+}

@@ -74,31 +74,7 @@ This operation is securely isolated via zero-copy serialization in `secure_aggre
 
 ## System Architecture
 
-```mermaid
-graph TD
-    subgraph K8s_Cluster["Kubernetes Cluster (Minikube)"]
-        Server["HiveTorch Coordinator (Pod)"]
-        
-        subgraph Clients["Edge Worker Nodes"]
-            C1["Client 1"]
-            C2["Client 2"]
-            C3["Client K"]
-        end
-    end
-
-    subgraph Telemetry["Monitoring Stack"]
-        Prometheus["Prometheus Metrics"]
-        WANDB["Weights & Biases (Cloud)"]
-    end
-
-    Server --> |"1. Broadcast Global Weights"| Clients
-    Clients --> |"2. Local SGD Training"| Clients
-    Clients --> |"3. Transmit Gradients (gRPC)"| Server
-    Server --> |"4. Secure Weighted Averaging"| Server
-
-    Server -.-> |"Log Accuracies"| WANDB
-    Server -.-> |"Scrape Dropout Rates"| Prometheus
-```
+![System Architecture](docs/architecture.svg)
 
 **Architecture Explanation:**
 The system is bifurcated into two distinct layers: the Algorithmic Layer and the Orchestration Layer. 
