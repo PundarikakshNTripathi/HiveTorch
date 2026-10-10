@@ -2,25 +2,19 @@ FROM python:3.13-slim
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir uv
 
-# Install uv for fast dependency management
-RUN pip install uv
+# Dependencies first (cached layer). The CPU torch index is pinned in pyproject.toml.
+COPY pyproject.toml uv.lock README.md ./
+RUN uv sync --no-dev --frozen --no-install-project
 
-# Copy dependency files
-COPY pyproject.toml uv.lock ./
-
-# Install dependencies using uv
-RUN uv sync --no-dev
-
-# Copy source code
 COPY . .
 
-# Set python path
-ENV PYTHONPATH=/app/src
+# The code imports `src.fedavg_core...`, so the project root must be on the path.
+ENV PYTHONPATH=/app \
+    PATH="/app/.venv/bin:$PATH" \
+    PYTHONUNBUFFERED=1
 
-# Default command (can be overridden to run client or server)
-CMD ["python", "main.py"]
+EXPOSE 50051 8000
+ENTRYPOINT ["python", "main.py"]
+CMD ["simulate"]

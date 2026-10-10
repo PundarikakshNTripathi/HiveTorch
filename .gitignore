@@ -1,2 +1,10 @@
 .venv
 .env
+data/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+wandb/
+.dvc-storage

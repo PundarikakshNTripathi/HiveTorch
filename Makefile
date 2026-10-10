@@ -1,79 +1,61 @@
-.PHONY: setup dvc-init proto lint test docker-build cluster-up deploy monitor-up wandb-login all clean
+.PHONY: help setup proto lint test simulate experiments federation-local compose-up docker-build cluster-up deploy monitor-up clean all
 
-# Load environment variables if .env exists
--include .env
-export
+help:
+	@echo "make setup             install dependencies (uv)"
+	@echo "make proto             regenerate gRPC stubs into src/fedavg_core/rpc"
+	@echo "make lint              ruff + mypy + stub freshness check"
+	@echo "make test              unit tests + gRPC federation-vs-in-process equivalence tests"
+	@echo "make simulate          in-process FedAvg on the synthetic dataset"
+	@echo "make experiments       IID vs Dirichlet vs shards on MNIST (regenerates the README table and docs/results/)"
+	@echo "make federation-local  gRPC server + 5 client processes on this machine"
+	@echo "make compose-up        the same federation in Docker Compose"
+	@echo "make cluster-up deploy run it on a local Minikube cluster (Indexed Job)"
 
-all: setup dvc-init proto lint test docker-build cluster-up monitor-up deploy wandb-login run-pipeline run-tuning run-benchmarks
+all: setup proto lint test simulate
 
 setup:
-	@echo "Installing dependencies..."
 	uv sync
 
-dvc-init:
-	@echo "Setting up local DVC storage..."
-	@mkdir -p .dvc-storage
-	@grep -q ".dvc-storage" .gitignore || echo ".dvc-storage" >> .gitignore
-	@dvc init -f || true
-	@dvc remote add -d local_storage .dvc-storage -f
-	@git add .dvc/config .dvcignore .gitignore
-	@git commit -m "chore: configure local dvc storage" || true
-
 proto:
-	@echo "Compiling protobufs..."
-	python -m grpc_tools.protoc -I proto --python_out=src/fedavg_core --grpc_python_out=src/fedavg_core proto/federated.proto
+	uv run python scripts/gen_proto.py
 
 lint:
-	@echo "Running linters..."
 	uv run ruff check .
-	uv run mypy .
+	uv run mypy src scripts main.py
+	uv run python scripts/gen_proto.py --check
 
 test:
-	@echo "Running tests..."
-	uv run pytest tests/
+	uv run pytest tests/ -v
+
+simulate:
+	uv run python main.py simulate
+
+experiments:
+	uv run python scripts/run_heterogeneity_experiment.py
+
+federation-local:
+	bash scripts/run_local_federation.sh
+
+compose-up:
+	docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit --exit-code-from server
 
 docker-build:
-	@echo "Building Docker image..."
 	docker build -t hivetorch:latest -f docker/Dockerfile .
 
 cluster-up:
-	@echo "Starting Minikube..."
-	minikube status || minikube start --cpus=4 --memory=8192
+	minikube status || minikube start --cpus=4 --memory=4096
 	minikube image load hivetorch:latest
 
 deploy:
-	@echo "Deploying to Kubernetes..."
 	kubectl apply -f deployments/k8s-simulation-job.yaml
-	kubectl apply -f deployments/prometheus-rules.yaml
+	kubectl wait --for=condition=complete job/hivetorch-server --timeout=600s
+	kubectl logs job/hivetorch-server | tail -20
 
 monitor-up:
-	@echo "Setting up Prometheus and Grafana..."
 	helm repo add prometheus-community https://prometheus-community.github.io/helm-charts || true
 	helm repo update
-	helm upgrade --install prometheus prometheus-community/prometheus
-	helm upgrade --install grafana grafana/grafana
-
-wandb-login:
-	@echo "Logging into Weights & Biases..."
-	@if [ -z "$(WANDB_API_KEY)" ]; then \
-		echo "WANDB_API_KEY not found in .env"; \
-		exit 1; \
-	fi
-	wandb login $(WANDB_API_KEY)
-
-run-pipeline:
-	@echo "Executing End-to-End Federated Pipeline..."
-	uv run python scripts/run_pipeline.py
-
-run-tuning:
-	@echo "Executing Optuna Hyperparameter Sweep..."
-	uv run python scripts/tune_hyperparameters.py
-
-run-benchmarks:
-	@echo "Executing Benchmarks & Generating Visualizations..."
-	uv run python scripts/run_benchmarks.py
+	helm upgrade --install prometheus prometheus-community/kube-prometheus-stack
+	kubectl apply -f deployments/prometheus-rules.yaml
 
 clean:
-	@echo "Cleaning up..."
-	minikube delete || true
-	rm -rf .dvc-storage
+	kubectl delete -f deployments/k8s-simulation-job.yaml --ignore-not-found

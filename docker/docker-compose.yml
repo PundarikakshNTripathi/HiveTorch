@@ -1,42 +1,28 @@
-version: '3.8'
+# One server and five clients on a private network. Run from the repository root:
+#   docker compose -f docker/docker-compose.yml up --build --abort-on-container-exit --exit-code-from server
+# The server exits 0 once all rounds have completed; clients exit when the federation is finished.
+name: hivetorch
+
+x-client: &client
+  build:
+    context: ..
+    dockerfile: docker/Dockerfile
+  command: ["client"]
+  depends_on:
+    - server
 
 services:
   server:
     build:
-      context: .
+      context: ..
       dockerfile: docker/Dockerfile
-    command: ["python", "main.py", "--role=server"]
+    command: ["server", "--num-clients", "5", "--num-rounds", "10"]
     ports:
       - "50051:50051"
-    environment:
-      - ROLE=server
-    volumes:
-      - ./.config:/app/.config
+      - "8000:8000"   # Prometheus metrics
 
-  client-1:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: ["python", "main.py", "--role=client", "--client_id=1"]
-    depends_on:
-      - server
-    environment:
-      - ROLE=client
-      - SERVER_HOST=server
-      - SERVER_PORT=50051
-    volumes:
-      - ./.config:/app/.config
-
-  client-2:
-    build:
-      context: .
-      dockerfile: docker/Dockerfile
-    command: ["python", "main.py", "--role=client", "--client_id=2"]
-    depends_on:
-      - server
-    environment:
-      - ROLE=client
-      - SERVER_HOST=server
-      - SERVER_PORT=50051
-    volumes:
-      - ./.config:/app/.config
+  client0: { <<: *client, environment: { SERVER_ADDRESS: "server:50051", CLIENT_INDEX: "0" } }
+  client1: { <<: *client, environment: { SERVER_ADDRESS: "server:50051", CLIENT_INDEX: "1" } }
+  client2: { <<: *client, environment: { SERVER_ADDRESS: "server:50051", CLIENT_INDEX: "2" } }
+  client3: { <<: *client, environment: { SERVER_ADDRESS: "server:50051", CLIENT_INDEX: "3" } }
+  client4: { <<: *client, environment: { SERVER_ADDRESS: "server:50051", CLIENT_INDEX: "4" } }

@@ -1,25 +1,21 @@
 [project]
 name = "hivetorch"
 version = "0.1.0"
-description = "Add your description here"
+description = "Federated Averaging (FedAvg) in PyTorch: IID / Dirichlet / shard partitions, in-process and gRPC federation, Kubernetes Indexed Jobs"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "dvc>=3.67.1",
     "grpcio>=1.81.1",
     "grpcio-tools>=1.81.1",
-    "hydra-core>=1.3.3",
     "loguru>=0.7.3",
     "matplotlib>=3.11.0",
     "numpy>=2.4.6",
-    "opacus>=1.6.0",
+    "omegaconf>=2.3.0",
     "optuna>=4.9.0",
     "prometheus-client>=0.25.0",
     "safetensors>=0.8.0",
-    "scikit-learn>=1.9.0",
     "torch>=2.12.0",
     "torchvision>=0.27.0",
-    "wandb>=0.27.2",
 ]
 
 [dependency-groups]
@@ -30,6 +26,26 @@ dev = [
     "pytest-asyncio>=1.4.0",
     "ruff>=0.15.17",
 ]
+
+# Linux wheels from PyPI bundle CUDA (~2 GB); the federation workloads are CPU-only, so pin the CPU index.
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+torchvision = { index = "pytorch-cpu" }
+
+[tool.mypy]
+ignore_missing_imports = true
+explicit_package_bases = true
+namespace_packages = true
+mypy_path = "."
+exclude = ["src/fedavg_core/rpc/"]
+
+[tool.ruff]
+extend-exclude = ["src/fedavg_core/rpc"]
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

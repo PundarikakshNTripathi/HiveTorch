@@ -5,6 +5,7 @@ def load_config(config_path: str = ".config/federation/global_runtime.yaml") -> 
     """Loads and validates the Hydra/Omegaconf YAML configuration."""
     if os.path.exists(config_path):
         cfg = OmegaConf.load(config_path)
+        assert isinstance(cfg, DictConfig), "the federation config must be a mapping"
         return cfg
     
     # Fallback to defaults if file is empty or missing

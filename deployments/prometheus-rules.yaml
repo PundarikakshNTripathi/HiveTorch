@@ -1,22 +1,27 @@
+# Alerts over the metrics exported by the federation server (src/fedavg_core/server/grpc_server.py, port 8000).
 apiVersion: monitoring.coreos.com/v1
 kind: PrometheusRule
 metadata:
   name: hivetorch-rules
 spec:
   groups:
-  - name: federated_learning
-    rules:
-    - alert: HighClientDropout
-      expr: rate(client_disconnects_total[5m]) > 0.1
-      for: 2m
-      labels:
-        severity: warning
-      annotations:
-        summary: "High rate of client dropouts detected"
-    - alert: ConceptDriftDetected
-      expr: drift_detector_flag > 0
-      for: 1m
-      labels:
-        severity: critical
-      annotations:
-        summary: "Statistical drift detected in global model updates"
+    - name: federated_learning
+      rules:
+        - alert: RejectedClientUpdates
+          expr: increase(federation_updates_rejected_total[5m]) > 0
+          for: 1m
+          labels: { severity: warning }
+          annotations:
+            summary: "The federation server is rejecting client updates (wrong round, bad payload or wrong architecture)"
+        - alert: ConceptDriftDetected
+          expr: federation_drift_flag > 0
+          for: 1m
+          labels: { severity: critical }
+          annotations:
+            summary: "Global accuracy dropped more than 10% below its best value"
+        - alert: FederationStalled
+          expr: changes(federation_round[10m]) == 0 and federation_round > 0
+          for: 10m
+          labels: { severity: warning }
+          annotations:
+            summary: "No round has completed for 10 minutes (a sampled client is probably missing)"

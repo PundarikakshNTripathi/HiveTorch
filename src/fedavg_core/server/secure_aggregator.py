@@ -79,4 +79,5 @@ def aggregate_weighted_average(client_states: list, client_sample_counts: list) 
             # Subsequent clients are added element-wise via your Step 14 function
             global_state = add_state_dicts(global_state, scaled_state)
             
+    assert global_state is not None, "aggregate_weighted_average needs at least one client state"
     return global_state

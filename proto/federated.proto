@@ -2,38 +2,66 @@ syntax = "proto3";
 
 package federated;
 
+// Synchronous Federated Averaging over gRPC.
+//
+// Round protocol (server drives the round counter, clients are stateless between rounds):
+//   1. every client calls Join once; when all expected clients have joined, round 0 opens;
+//   2. for round r = 0..R-1 each client calls GetModel(r), which blocks until round r is open and returns
+//      whether this client was sampled for the round and, if so, the global weights;
+//   3. a sampled client trains locally and calls SendUpdate(r, weights, num_samples);
+//   4. when every sampled client has reported, the server aggregates (sample-weighted average), evaluates on
+//      its held-out test set and opens round r + 1.
 service FederatedLearning {
     rpc Join (JoinRequest) returns (JoinResponse);
-    rpc SendUpdate (ClientUpdate) returns (ServerAck);
     rpc GetModel (ModelRequest) returns (ModelResponse);
+    rpc SendUpdate (ClientUpdate) returns (ServerAck);
+    rpc GetStatus (StatusRequest) returns (StatusResponse);
 }
 
 message JoinRequest {
     string client_id = 1;
+    int32 client_index = 2;      // which data partition this client owns, 0..K-1
 }
 
 message JoinResponse {
     bool accepted = 1;
     string session_id = 2;
+    int32 num_rounds = 3;
+    string message = 4;
+}
+
+message ModelRequest {
+    string client_id = 1;
+    string session_id = 2;
+    int32 round = 3;
+}
+
+message ModelResponse {
+    int32 current_round = 1;
+    bool participate = 2;        // false: not sampled this round (or federation finished)
+    bool finished = 3;
+    bytes global_weights = 4;    // safetensors payload, only set when participate = true
 }
 
 message ClientUpdate {
     string client_id = 1;
     string session_id = 2;
-    bytes weights = 3; // Serialized via safetensors
-    int32 num_samples = 4;
-    float loss = 5;
+    int32 round = 3;
+    bytes weights = 4;           // safetensors payload
+    int32 num_samples = 5;
+    float loss = 6;
 }
 
 message ServerAck {
     bool success = 1;
+    string message = 2;
 }
 
-message ModelRequest {
-    string client_id = 1;
-}
+message StatusRequest {}
 
-message ModelResponse {
+message StatusResponse {
     int32 current_round = 1;
-    bytes global_weights = 2; // Serialized via safetensors
+    int32 num_rounds = 2;
+    bool finished = 3;
+    repeated float round_accuracies = 4;
 }

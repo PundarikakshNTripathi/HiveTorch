@@ -1,0 +1,13 @@
+.venv
+.git
+.github
+data
+__pycache__
+**/__pycache__
+.pytest_cache
+.ruff_cache
+.mypy_cache
+*.pyc
+docs/results
+.antigravity
+wandb

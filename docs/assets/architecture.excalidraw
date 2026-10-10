@@ -1,0 +1,661 @@
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "excalidraw-cli",
+  "elements": [
+    {
+      "id": "title",
+      "type": "text",
+      "x": 20,
+      "y": 8,
+      "strokeColor": "#212529",
+      "roughness": 0,
+      "text": "HiveTorch: synchronous FedAvg over gRPC",
+      "fontSize": 30,
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zc",
+      "type": "rectangle",
+      "x": 10,
+      "y": 70,
+      "width": 360,
+      "height": 600,
+      "backgroundColor": "#d3f9d8",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "opacity": 55,
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zc_t",
+      "type": "text",
+      "x": 28,
+      "y": 82,
+      "strokeColor": "#2f9e44",
+      "roughness": 0,
+      "text": "K clients (pods / processes)",
+      "fontSize": 22,
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zw",
+      "type": "rectangle",
+      "x": 390,
+      "y": 70,
+      "width": 380,
+      "height": 600,
+      "backgroundColor": "#f1f3f5",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "opacity": 55,
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zw_t",
+      "type": "text",
+      "x": 408,
+      "y": 82,
+      "strokeColor": "#868e96",
+      "roughness": 0,
+      "text": "Wire",
+      "fontSize": 22,
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zs",
+      "type": "rectangle",
+      "x": 790,
+      "y": 70,
+      "width": 760,
+      "height": 600,
+      "backgroundColor": "#d0ebff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "opacity": 55,
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "zs_t",
+      "type": "text",
+      "x": 808,
+      "y": 82,
+      "strokeColor": "#1971c2",
+      "roughness": 0,
+      "text": "Federation server (round state machine)",
+      "fontSize": 22,
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "part",
+      "type": "rectangle",
+      "x": 30,
+      "y": 130,
+      "width": 320,
+      "height": 110,
+      "backgroundColor": "#c5f6fa",
+      "strokeColor": "#0c8599",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Local data partition\nnever leaves the client\nIID | Dirichlet | shards"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "sgd",
+      "type": "rectangle",
+      "x": 30,
+      "y": 290,
+      "width": 320,
+      "height": 110,
+      "backgroundColor": "#d3f9d8",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Local training\nSGD, E epochs, batch B\nseed = base + round + id"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "gc",
+      "type": "rectangle",
+      "x": 30,
+      "y": 480,
+      "width": 320,
+      "height": 110,
+      "backgroundColor": "#d0ebff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "gRPC client\nJoin, GetModel(r),\nSendUpdate(r)"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "st",
+      "type": "rectangle",
+      "x": 410,
+      "y": 290,
+      "width": 300,
+      "height": 110,
+      "backgroundColor": "#f1f3f5",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "weights as safetensors\n(typed, pickle-free)"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "pb",
+      "type": "rectangle",
+      "x": 410,
+      "y": 480,
+      "width": 300,
+      "height": 110,
+      "backgroundColor": "#f1f3f5",
+      "strokeColor": "#868e96",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "federated.proto\nJoin, GetModel,\nSendUpdate, GetStatus"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "pm",
+      "type": "rectangle",
+      "x": 810,
+      "y": 130,
+      "width": 330,
+      "height": 110,
+      "backgroundColor": "#ffe8cc",
+      "strokeColor": "#e8590c",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Prometheus /metrics\nround, accuracy, drift flag,\nrejected updates"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.905Z",
+      "updatedAt": "2026-10-10T02:19:01.905Z",
+      "version": 1
+    },
+    {
+      "id": "ev",
+      "type": "rectangle",
+      "x": 1180,
+      "y": 130,
+      "width": 350,
+      "height": 110,
+      "backgroundColor": "#d3f9d8",
+      "strokeColor": "#2f9e44",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Evaluate global model\nheld-out test accuracy"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1
+    },
+    {
+      "id": "sel",
+      "type": "rectangle",
+      "x": 810,
+      "y": 290,
+      "width": 330,
+      "height": 110,
+      "backgroundColor": "#f3d9fa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Sample clients\nselect_round_clients\n(seed + round)"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1
+    },
+    {
+      "id": "agg",
+      "type": "rectangle",
+      "x": 1180,
+      "y": 290,
+      "width": 350,
+      "height": 110,
+      "backgroundColor": "#f3d9fa",
+      "strokeColor": "#9c36b5",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "Aggregate\nsample-weighted average\nof client states"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1
+    },
+    {
+      "id": "svc",
+      "type": "rectangle",
+      "x": 810,
+      "y": 480,
+      "width": 720,
+      "height": 110,
+      "backgroundColor": "#d0ebff",
+      "strokeColor": "#1971c2",
+      "strokeWidth": 2,
+      "roughness": 0,
+      "label": {
+        "text": "gRPC servicer: validates session, round, client sampled?,\npayload keys / shapes / dtypes; opens round r+1 when all sampled clients reported"
+      },
+      "roundness": {
+        "type": 3
+      },
+      "fillStyle": "solid",
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1
+    },
+    {
+      "id": "mv1rmsnmqvzy88v0hg",
+      "type": "arrow",
+      "x": 190,
+      "y": 248,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          34
+        ]
+      ],
+      "startBinding": {
+        "elementId": "part",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "sgd",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnmap2oped14t5",
+      "type": "arrow",
+      "x": 190,
+      "y": 408,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          64
+        ]
+      ],
+      "startBinding": {
+        "elementId": "sgd",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "gc",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnmfqaucspli4h",
+      "type": "arrow",
+      "x": 358,
+      "y": 535,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          44,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "gc",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "pb",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnmz2e5fm8rov",
+      "type": "arrow",
+      "x": 718,
+      "y": 535,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          84,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "pb",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "svc",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnmokelvbb4aqg",
+      "type": "arrow",
+      "x": 718,
+      "y": 345,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          84,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "st",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "sel",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnmjvx1kt5cb3",
+      "type": "arrow",
+      "x": 1107.8227948737879,
+      "y": 474.41708218471655,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -70.64558974757574,
+          -68.8341643694331
+        ]
+      ],
+      "startBinding": {
+        "elementId": "svc",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "sel",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnm9t13p0n4lmn",
+      "type": "arrow",
+      "x": 1148,
+      "y": 345,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          24,
+          0
+        ]
+      ],
+      "startBinding": {
+        "elementId": "sel",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "agg",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnm804lpeil8jx",
+      "type": "arrow",
+      "x": 1355,
+      "y": 282,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "solid",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          0,
+          -34
+        ]
+      ],
+      "startBinding": {
+        "elementId": "agg",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "ev",
+        "focus": 0,
+        "gap": 8
+      }
+    },
+    {
+      "id": "mv1rmsnm5pz3v4sed22",
+      "type": "arrow",
+      "x": 1172,
+      "y": 185.00000000000003,
+      "strokeColor": "#495057",
+      "strokeWidth": 2,
+      "strokeStyle": "dashed",
+      "roughness": 0,
+      "endArrowhead": "arrow",
+      "elbowed": false,
+      "createdAt": "2026-10-10T02:19:01.906Z",
+      "updatedAt": "2026-10-10T02:19:01.906Z",
+      "version": 1,
+      "points": [
+        [
+          0,
+          0
+        ],
+        [
+          -24,
+          -2.842170943040401e-14
+        ]
+      ],
+      "startBinding": {
+        "elementId": "ev",
+        "focus": 0,
+        "gap": 8
+      },
+      "endBinding": {
+        "elementId": "pm",
+        "focus": 0,
+        "gap": 8
+      }
+    }
+  ],
+  "appState": {
+    "viewBackgroundColor": "#ffffff",
+    "gridSize": null
+  }
+}

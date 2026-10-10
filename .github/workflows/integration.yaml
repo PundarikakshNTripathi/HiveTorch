@@ -4,22 +4,21 @@ on:
   push:
     branches: [ "develop", "main" ]
   pull_request:
-    branches: [ "develop" ]
+    branches: [ "develop", "main" ]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.13"
-    - name: Install uv
-      run: curl -LsSf https://astral.sh/uv/install.sh | sh
-    - name: Install dependencies
-      run: uv sync
-    - name: Lint
-      run: uv run ruff check .
-    - name: Test
-      run: uv run pytest tests/
+      - uses: actions/checkout@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install dependencies
+        run: uv sync
+      - name: Lint (ruff, mypy, generated gRPC stubs are current)
+        run: |
+          uv run ruff check .
+          uv run mypy src scripts main.py
+          uv run python scripts/gen_proto.py --check
+      - name: Test (unit + gRPC federation equals in-process FedAvg)
+        run: uv run pytest tests/ -v

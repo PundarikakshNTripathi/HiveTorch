@@ -1,3 +1,4 @@
+import numpy as np
 import torch
 
 def partition_data_iid(train_features: torch.Tensor, train_labels: torch.Tensor, num_clients: int, seed: int):
@@ -98,12 +99,74 @@ def partition_data_non_iid(train_features: torch.Tensor, train_labels: torch.Ten
             client_indices.append(shards[shard_idx])
             
         # Concatenate the selected shard indices into a single 1D tensor
-        client_indices = torch.cat(client_indices)
+        client_idx = torch.cat(client_indices)
         
         # Slice the original data using the skewed, concatenated indices
-        client_features = train_features[client_indices]
-        client_labels = train_labels[client_indices]
+        client_features = train_features[client_idx]
+        client_labels = train_labels[client_idx]
         
         partitions.append((client_features, client_labels))
         
+    return partitions
+
+def partition_data_dirichlet(
+    train_features: torch.Tensor,
+    train_labels: torch.Tensor,
+    num_clients: int,
+    alpha: float,
+    seed: int,
+    min_client_size: int = 10,
+    max_attempts: int = 100,
+):
+    """
+    Label-skewed partition by Dirichlet allocation (Hsu et al., 2019): for every class c, draw
+    p_c ~ Dirichlet(alpha * 1_K) and give client k a fraction p_c[k] of that class's samples.
+
+    Small alpha (e.g. 0.1) makes each client hold only a few classes; large alpha (e.g. 100) approaches IID.
+    To keep clients trainable, a client that already holds more than its fair share N / K is skipped when
+    allocating the remaining classes (NIID-Bench), and the draw is repeated until every client has at least
+    `min_client_size` samples.
+
+    Args:
+        train_features: Float tensor of shape (M, input_size).
+        train_labels: Int64 tensor of shape (M,).
+        num_clients: Number of simulated clients (K).
+        alpha: Dirichlet concentration (> 0).
+        seed: Seed for the NumPy generator (full reproducibility).
+        min_client_size: Minimum samples per client.
+        max_attempts: Redraws before giving up.
+
+    Returns:
+        List of (client_features, client_labels) tuples, one per client.
+    """
+    if alpha <= 0:
+        raise ValueError("alpha must be positive")
+    labels_np = train_labels.cpu().numpy()
+    num_samples = len(labels_np)
+    classes = sorted(set(labels_np.tolist()))
+    rng = np.random.default_rng(seed)
+
+    for _ in range(max_attempts):
+        client_indices: list[list[int]] = [[] for _ in range(num_clients)]
+        for c in classes:
+            idx_c = np.flatnonzero(labels_np == c)
+            rng.shuffle(idx_c)
+            proportions = rng.dirichlet(np.full(num_clients, alpha))
+            # Do not give more data to clients that are already above the fair share
+            proportions = np.array([p if len(ci) < num_samples / num_clients else 0.0 for p, ci in zip(proportions, client_indices)])
+            if proportions.sum() == 0:
+                proportions = np.full(num_clients, 1.0 / num_clients)
+            proportions = proportions / proportions.sum()
+            cuts = (np.cumsum(proportions) * len(idx_c)).astype(int)[:-1]
+            for ci, part in zip(client_indices, np.split(idx_c, cuts)):
+                ci.extend(part.tolist())
+        if min(len(ci) for ci in client_indices) >= min_client_size:
+            break
+    else:
+        raise RuntimeError(f"could not draw a Dirichlet partition with >= {min_client_size} samples per client in {max_attempts} attempts")
+
+    partitions = []
+    for ci in client_indices:
+        sel = torch.as_tensor(sorted(ci), dtype=torch.int64)
+        partitions.append((train_features[sel], train_labels[sel]))
     return partitions

@@ -1,33 +1,62 @@
+# Federation on Kubernetes: one server Job + Service, one Indexed Job whose pods are the clients.
+# Each client pod learns which data partition it owns from the Job completion index (0..4), so no per-client
+# manifest is needed.   kubectl apply -f deployments/k8s-simulation-job.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: hivetorch-server
+  labels: { app: hivetorch, role: server }
+spec:
+  selector: { app: hivetorch, role: server }
+  ports:
+    - { name: grpc, port: 50051, targetPort: 50051 }
+    - { name: metrics, port: 8000, targetPort: 8000 }
+---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: hivetorch-server
 spec:
+  backoffLimit: 0
   template:
+    metadata:
+      labels: { app: hivetorch, role: server }
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8000"
     spec:
-      containers:
-      - name: server
-        image: hivetorch:latest
-        imagePullPolicy: Never
-        command: ["python", "scripts/orchestrate_simulation.py"]
-        ports:
-        - containerPort: 50051
       restartPolicy: Never
+      containers:
+        - name: server
+          image: hivetorch:latest
+          imagePullPolicy: IfNotPresent
+          args: ["server", "--num-clients", "5", "--num-rounds", "10"]
+          ports:
+            - { containerPort: 50051, name: grpc }
+            - { containerPort: 8000, name: metrics }
 ---
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: hivetorch-clients
 spec:
+  completionMode: Indexed
+  completions: 5
   parallelism: 5
+  backoffLimit: 2
   template:
+    metadata:
+      labels: { app: hivetorch, role: client }
     spec:
-      containers:
-      - name: client
-        image: hivetorch:latest
-        imagePullPolicy: Never
-        command: ["python", "src/fedavg_core/client/edge_trainer.py"]
-        env:
-        - name: SERVER_HOST
-          value: "hivetorch-server"
       restartPolicy: OnFailure
+      containers:
+        - name: client
+          image: hivetorch:latest
+          imagePullPolicy: IfNotPresent
+          args: ["client"]
+          env:
+            - { name: SERVER_ADDRESS, value: "hivetorch-server:50051" }
+            - name: JOB_COMPLETION_INDEX
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.annotations['batch.kubernetes.io/job-completion-index']"
